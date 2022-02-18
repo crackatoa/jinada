@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
+	"fmt"
 	"jinada/database"
+	"log"
+	"os"
 )
 
 func main() {
@@ -15,6 +19,9 @@ func main() {
 	var new bool
 	flag.BoolVar(&new, "new", false, "create new project")
 
+	var remove bool
+	flag.BoolVar(&remove, "remove", false, "delete project")
+
 	var list string
 	flag.StringVar(&list, "list", "", "list asset")
 
@@ -24,7 +31,26 @@ func main() {
 	var addsubdomain string
 	flag.StringVar(&addsubdomain, "addsubdomain", "", "add subdomain")
 
+	// handler
+	var input string
+	flag.StringVar(&input, "i", "", "read input from file")
+
 	flag.Parse()
+
+	//input from stdin
+
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		if len(domain) > 0 {
+			database.InsertSubdomain(domain, scanner.Text())
+		} else {
+			fmt.Println("Domain not set")
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
 
 	//flag list action
 	if len(list) > 0 {
@@ -45,15 +71,25 @@ func main() {
 	}
 
 	if new == true {
-		database.InsertProject(project)
+		if len(domain) > 0 {
+			database.InsertProjectDomain(project, domain)
+		} else {
+			fmt.Println("Domain not set")
+		}
+	}
+
+	if remove == true {
+		if len(project) > 0 {
+			database.DeleteProject(project)
+		} else {
+			fmt.Println("Project not set")
+		}
 	}
 
 	if dummy == true {
 		database.InsertDummy()
 	}
 
-	if len(domain) > 0 {
-
-	}
+	//handler
 
 }

@@ -139,12 +139,11 @@ func CheckDomainExist(domain string) {
 }
 
 // Insert query
-func InsertProject(project string) {
+func InsertProjectDomain(project string, domain string) {
 	workspaceCollection := connectCollection("workspace")
 	opts := options.Update().SetUpsert(true)
-
-	filter := bson.M{"project": project}
-	update := bson.D{{"$set", bson.M{"project": project}}}
+	filter := bson.M{"domain": domain}
+	update := bson.D{{"$set", bson.M{"project": project, "domain": domain}}}
 	result, err := workspaceCollection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		log.Fatal(err)
@@ -168,12 +167,14 @@ func InsertSubdomain(domain string, subdomain string) {
 	}
 	opts := options.Update().SetUpsert(true)
 	filter := bson.M{"domain": domain}
-	update := bson.D{{"$push", bson.M{"subdomains": data}}}
+	update := bson.D{{"$addToSet", bson.M{"subdomains": data}}}
 	result, err := workspaceCollection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		log.Fatal("Subdomain Exist")
 	}
-	fmt.Println("Subdomain added", result)
+	if result.ModifiedCount == 1 {
+		fmt.Println("New Subdomain", subdomain, "added")
+	}
 }
 
 func InsertDummy() {
@@ -199,7 +200,13 @@ func InsertDummy() {
 
 // Delete query
 func DeleteProject(project string) {
-
+	workspaceCollection := connectCollection("workspace")
+	var remove = bson.M{"project": project}
+	result, err := workspaceCollection.DeleteOne(ctx, remove)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Removed :", result.DeletedCount)
 }
 
 func DeleteDomain(project string, domain string) {
