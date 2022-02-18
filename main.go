@@ -38,20 +38,21 @@ func main() {
 	flag.Parse()
 
 	//input from stdin
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) == 0 {
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			if len(domain) > 0 {
+				database.InsertSubdomain(domain, scanner.Text())
+			} else {
+				fmt.Println("Domain not set")
+			}
+		}
 
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		if len(domain) > 0 {
-			database.InsertSubdomain(domain, scanner.Text())
-		} else {
-			fmt.Println("Domain not set")
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
 		}
 	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
 	//flag list action
 	if len(list) > 0 {
 		switch list {
