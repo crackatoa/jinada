@@ -16,6 +16,9 @@ func main() {
 	var domain string
 	flag.StringVar(&domain, "d", "", "domain name")
 
+	var ip string
+	flag.StringVar(&ip, "ip", "", "ip target")
+
 	var new bool
 	flag.BoolVar(&new, "new", false, "create new project")
 
@@ -28,8 +31,8 @@ func main() {
 	var dummy bool
 	flag.BoolVar(&dummy, "dummy", false, "insert dummy data")
 
-	var addsubdomain string
-	flag.StringVar(&addsubdomain, "addsubdomain", "", "add subdomain")
+	var subdomain string
+	flag.StringVar(&subdomain, "subdomain", "", "add subdomain")
 
 	// handler
 	var input string
@@ -57,23 +60,24 @@ func main() {
 	if len(list) > 0 {
 		switch list {
 		case "project":
-			database.List("project")
+			database.ListProject()
 		case "domain":
-			database.List("domain")
+			database.ListDomain()
 		case "subdomain":
-			database.FindAllSubdomain()
+			if len(domain) > 0 {
+				database.ListSubdomainDomain(domain)
+			} else {
+				database.ListSubdomain()
 
+			}
+		case "ip":
+			database.ListIp()
 		}
-	}
-
-	//flag addsubdomain action
-	if len(addsubdomain) > 0 {
-		database.InsertSubdomain(domain, addsubdomain)
 	}
 
 	if new == true {
 		if len(domain) > 0 {
-			database.InsertProjectDomain(project, domain)
+			database.InsertDomainToProject(project, domain)
 		} else {
 			fmt.Println("Domain not set")
 		}
@@ -88,9 +92,8 @@ func main() {
 	}
 
 	if dummy == true {
-		database.InsertDummy()
+		//database.InsertDummyProjects()
+		//database.InsertIpToProject(project, ip)
+		database.InsertSubdomainToDomain(domain, subdomain)
 	}
-
-	//handler
-
 }

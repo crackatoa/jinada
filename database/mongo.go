@@ -24,9 +24,25 @@ type Project struct {
 	Subdomains []SubdomainField   `bson:"subdomains"`
 }
 
+type Projects struct {
+	ID         primitive.ObjectID `bson:"_id"`
+	Project    string             `bson:"project"`
+	LastUpdate time.Time          `bson:"last_update"`
+	Domains    []DomainField      `bson: "domains"`
+	IPs        []IPField          `bson:"ips"`
+}
+
+type DomainField struct {
+	Domain     string           `bson:"domain"`
+	Subdomains []SubdomainField `bson:"subdomains"`
+}
+
 type SubdomainField struct {
 	Subdomain string `bson:"subdomain"`
-	Title     string `bson:"title"`
+}
+
+type IPField struct {
+	IP string `bson:"ip"`
 }
 
 func connect() (*mongo.Database, error) {
@@ -185,8 +201,8 @@ func InsertDummy() {
 		Domain:  "test1.com",
 		Date:    time.Now(),
 		Subdomains: []SubdomainField{
-			{Subdomain: "a.test1.com", Title: "test 1"},
-			{Subdomain: "b.test.com", Title: "test2"},
+			{Subdomain: "a.test1.com"},
+			{Subdomain: "b.test.com"},
 		},
 	}
 
@@ -199,15 +215,6 @@ func InsertDummy() {
 }
 
 // Delete query
-func DeleteProject(project string) {
-	workspaceCollection := connectCollection("workspace")
-	var remove = bson.M{"project": project}
-	result, err := workspaceCollection.DeleteOne(ctx, remove)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Removed :", result.DeletedCount)
-}
 
 func DeleteDomain(project string, domain string) {
 
@@ -229,3 +236,5 @@ func UpdateDomain(domain string) {
 func UpdateSubdomain(subdomain string) {
 
 }
+
+//dummy
