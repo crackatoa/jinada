@@ -22,7 +22,7 @@ var resultFindIp struct {
 }
 
 func InsertDomainToProject(project string, domain string) {
-	projectsCollection := connectCollection("projects")
+
 	data := DomainField{
 		Domain:     domain,
 		Subdomains: []SubdomainField{},
@@ -45,7 +45,7 @@ func InsertDomainToProject(project string, domain string) {
 }
 
 func InsertIpToProject(project string, ip string) {
-	projectsCollection := connectCollection("projects")
+
 	data := IPField{
 		IP: ip,
 	}
@@ -67,7 +67,6 @@ func InsertIpToProject(project string, ip string) {
 }
 
 func InsertSubdomainToDomain(domain string, subdomain string) {
-	projectsCollection := connectCollection("projects")
 	data := SubdomainField{
 		Subdomain: subdomain,
 	}
@@ -79,6 +78,7 @@ func InsertSubdomainToDomain(domain string, subdomain string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if result.ModifiedCount == 1 {
 		fmt.Println("New Subdomain", subdomain, "added to", domain)
 	} else {
@@ -86,8 +86,29 @@ func InsertSubdomainToDomain(domain string, subdomain string) {
 	}
 }
 
+func InsertSubdomainToDomainMany(domain string, subdomain []string) {
+	for _, s := range subdomain {
+		data := SubdomainField{
+			Subdomain: s,
+		}
+
+		opts := options.Update().SetUpsert(true)
+		filter := bson.M{"domains.domain": domain}
+		update := bson.D{{"$addToSet", bson.M{"domains.$.subdomains": data}}}
+		result, err := projectsCollection.UpdateOne(ctx, filter, update, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if result.ModifiedCount == 1 {
+			fmt.Println("New Subdomain", s, "added to", domain)
+		} else {
+			fmt.Println(s, "already exist")
+		}
+	}
+}
+
 func InsertDummyProjects() {
-	projectsCollection := connectCollection("projects")
 	data := Projects{
 		ID:         primitive.NewObjectID(),
 		Project:    "project new",
@@ -117,7 +138,6 @@ func InsertDummyProjects() {
 }
 
 func DeleteProject(project string) {
-	projectsCollection := connectCollection("projects")
 	var remove = bson.M{"project": project}
 	result, err := projectsCollection.DeleteOne(ctx, remove)
 	if err != nil {
@@ -131,7 +151,6 @@ func DeleteProject(project string) {
 }
 
 func ListProject() {
-	projectsCollection := connectCollection("projects")
 	opts := options.Find().SetProjection(bson.M{"project": 1})
 	cursor, err := projectsCollection.Find(ctx, bson.M{}, opts)
 	if err != nil {
@@ -150,7 +169,6 @@ func ListProject() {
 }
 
 func ListDomain() {
-	projectsCollection := connectCollection("projects")
 	unwind1 := bson.D{{"$unwind", "$domains"}}
 	unwind2 := bson.D{{"$unwind", "$domains.subdomains"}}
 	group := bson.D{{"$group", bson.D{{"_id", "$domains.domain"}, {"subdomain", bson.D{{"$push", "$domains.subdomains.subdomain"}}}}}}
@@ -170,7 +188,6 @@ func ListDomain() {
 }
 
 func ListSubdomain() {
-	projectsCollection := connectCollection("projects")
 	unwind1 := bson.D{{"$unwind", "$domains"}}
 	unwind2 := bson.D{{"$unwind", "$domains.subdomains"}}
 	group := bson.D{{"$group", bson.D{{"_id", "$domains.domain"}, {"subdomain", bson.D{{"$push", "$domains.subdomains.subdomain"}}}}}}
@@ -192,7 +209,7 @@ func ListSubdomain() {
 }
 
 func ListSubdomainDomain(domain string) {
-	projectsCollection := connectCollection("projects")
+
 	unwind1 := bson.D{{"$unwind", "$domains"}}
 	unwind2 := bson.D{{"$unwind", "$domains.subdomains"}}
 	match := bson.D{{"$match", bson.D{{"domains.domain", domain}}}}
@@ -215,7 +232,7 @@ func ListSubdomainDomain(domain string) {
 }
 
 func ListIp() {
-	projectsCollection := connectCollection("projects")
+
 	unwind1 := bson.D{{"$unwind", "$ips"}}
 	group := bson.D{{"$group", bson.D{{"_id", "$project"}, {"ip", bson.D{{"$push", "$ips.ip"}}}}}}
 

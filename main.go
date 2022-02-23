@@ -34,26 +34,7 @@ func main() {
 	flag.StringVar(&input, "i", "", "read input from file")
 	flag.Parse()
 
-	//input from stdin
-	stat, _ := os.Stdin.Stat()
-	if (stat.Mode() & os.ModeCharDevice) == 0 {
-		if add {
-			scanner := bufio.NewScanner(os.Stdin)
-			for scanner.Scan() {
-				if len(domain) > 0 {
-					database.InsertSubdomainToDomain(domain, scanner.Text())
-				} else {
-					fmt.Println("Domain not set")
-				}
-			}
-
-			if err := scanner.Err(); err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			fmt.Println("flag -add not set")
-		}
-	}
+	database.Init()
 	//flag list action
 	if len(list) > 0 {
 		switch list {
@@ -86,6 +67,29 @@ func main() {
 			database.DeleteProject(project)
 		} else {
 			fmt.Println("Project not set")
+		}
+	}
+
+	//input from stdin
+
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) == 0 {
+		if add {
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				if len(domain) > 0 {
+					database.InsertSubdomainToDomain(domain, scanner.Text())
+				} else {
+					fmt.Println("Domain not set")
+				}
+			}
+
+			if err := scanner.Err(); err != nil {
+				log.Fatal(err)
+			}
+
+		} else {
+			fmt.Println("flag -add not set")
 		}
 	}
 
