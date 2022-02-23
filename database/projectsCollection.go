@@ -77,7 +77,7 @@ func InsertSubdomainToDomain(domain string, subdomain string) {
 	update := bson.D{{"$addToSet", bson.M{"domains.$.subdomains": data}}}
 	result, err := projectsCollection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
-		log.Fatal("Domain ", domain, " not exist")
+		log.Fatal(err)
 	}
 	if result.ModifiedCount == 1 {
 		fmt.Println("New Subdomain", subdomain, "added to", domain)
