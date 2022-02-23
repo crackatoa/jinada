@@ -24,7 +24,8 @@ var resultFindIp struct {
 func InsertDomainToProject(project string, domain string) {
 	projectsCollection := connectCollection("projects")
 	data := DomainField{
-		Domain: domain,
+		Domain:     domain,
+		Subdomains: []SubdomainField{},
 	}
 
 	opts := options.Update().SetUpsert(true)

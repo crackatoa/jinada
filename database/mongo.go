@@ -142,18 +142,6 @@ func FindAllSubdomain() {
 	fmt.Println(result)
 }
 
-func FindScopeDomain(domain string) {
-
-}
-
-func CheckProjectExist(project string) {
-
-}
-
-func CheckDomainExist(domain string) {
-
-}
-
 // Insert query
 func InsertProjectDomain(project string, domain string) {
 	workspaceCollection := connectCollection("workspace")
@@ -168,10 +156,6 @@ func InsertProjectDomain(project string, domain string) {
 		log.Fatal("Project Exist")
 	}
 	fmt.Println("Project Created", result)
-
-}
-
-func InsertDomain(project string, domain string) {
 
 }
 
@@ -192,49 +176,3 @@ func InsertSubdomain(domain string, subdomain string) {
 		fmt.Println("New Subdomain", subdomain, "added")
 	}
 }
-
-func InsertDummy() {
-	workspaceCollection := connectCollection("workspace")
-	data := Project{
-		ID:      primitive.NewObjectID(),
-		Project: "Test1",
-		Domain:  "test1.com",
-		Date:    time.Now(),
-		Subdomains: []SubdomainField{
-			{Subdomain: "a.test1.com"},
-			{Subdomain: "b.test.com"},
-		},
-	}
-
-	result, err := workspaceCollection.InsertOne(ctx, data)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(result)
-
-}
-
-// Delete query
-
-func DeleteDomain(project string, domain string) {
-
-}
-
-func DeleteSubdomain(domain string, subdomain string) {
-
-}
-
-// Update
-func UpdateProject(project string) {
-
-}
-
-func UpdateDomain(domain string) {
-
-}
-
-func UpdateSubdomain(subdomain string) {
-
-}
-
-//dummy

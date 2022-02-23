@@ -4,56 +4,54 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"jinada/database"
 	"log"
 	"os"
+
+	"github.com/crackatoa/jinada/database"
 )
 
 func main() {
 	var project string
-	flag.StringVar(&project, "p", "", "project name")
-
 	var domain string
-	flag.StringVar(&domain, "d", "", "domain name")
-
 	var ip string
-	flag.StringVar(&ip, "ip", "", "ip target")
-
 	var new bool
-	flag.BoolVar(&new, "new", false, "create new project")
-
 	var remove bool
-	flag.BoolVar(&remove, "remove", false, "delete project")
-
 	var list string
-	flag.StringVar(&list, "list", "", "list asset")
-
 	var dummy bool
-	flag.BoolVar(&dummy, "dummy", false, "insert dummy data")
-
 	var subdomain string
-	flag.StringVar(&subdomain, "subdomain", "", "add subdomain")
-
-	// handler
 	var input string
-	flag.StringVar(&input, "i", "", "read input from file")
+	var add bool
 
+	flag.StringVar(&project, "p", "", "project name")
+	flag.StringVar(&domain, "d", "", "domain name")
+	flag.StringVar(&ip, "ip", "", "ip target")
+	flag.BoolVar(&new, "new", false, "create new project")
+	flag.BoolVar(&remove, "remove", false, "delete project")
+	flag.BoolVar(&add, "add", false, "add subdomain to domain")
+	flag.StringVar(&list, "list", "", "list asset")
+	flag.BoolVar(&dummy, "dummy", false, "insert dummy data")
+	flag.StringVar(&subdomain, "subdomain", "", "add subdomain")
+	flag.StringVar(&input, "i", "", "read input from file")
 	flag.Parse()
 
 	//input from stdin
 	stat, _ := os.Stdin.Stat()
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			if len(domain) > 0 {
-				database.InsertSubdomain(domain, scanner.Text())
-			} else {
-				fmt.Println("Domain not set")
+		if add {
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				if len(domain) > 0 {
+					database.InsertSubdomainToDomain(domain, scanner.Text())
+				} else {
+					fmt.Println("Domain not set")
+				}
 			}
-		}
 
-		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
+			if err := scanner.Err(); err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			fmt.Println("flag -add not set")
 		}
 	}
 	//flag list action

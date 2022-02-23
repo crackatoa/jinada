@@ -1,4 +1,4 @@
-module jinada
+module github.com/crackatoa/jinada
 
 go 1.13
 
