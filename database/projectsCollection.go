@@ -170,10 +170,9 @@ func ListProject() {
 
 func ListDomain() {
 	unwind1 := bson.D{{"$unwind", "$domains"}}
-	unwind2 := bson.D{{"$unwind", "$domains.subdomains"}}
-	group := bson.D{{"$group", bson.D{{"_id", "$domains.domain"}, {"subdomain", bson.D{{"$push", "$domains.subdomains.subdomain"}}}}}}
+	group := bson.D{{"$group", bson.D{{"_id", "$domains.domain"}}}}
 
-	cursor, err := projectsCollection.Aggregate(ctx, mongo.Pipeline{unwind1, unwind2, group})
+	cursor, err := projectsCollection.Aggregate(ctx, mongo.Pipeline{unwind1, group})
 	if err != nil {
 		log.Fatal(err)
 	}
