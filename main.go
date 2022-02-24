@@ -20,14 +20,14 @@ func main() {
 	var dummy bool
 	var subdomain string
 	var input string
-	var add bool
+	var add string
 
 	flag.StringVar(&project, "p", "", "project name")
 	flag.StringVar(&domain, "d", "", "domain name")
 	flag.StringVar(&ip, "ip", "", "ip target")
 	flag.BoolVar(&new, "new", false, "create new project")
 	flag.BoolVar(&remove, "remove", false, "delete project")
-	flag.BoolVar(&add, "add", false, "add subdomain to domain")
+	flag.StringVar(&add, "add", "", "add subdomain to domain")
 	flag.StringVar(&list, "list", "", "list asset")
 	flag.BoolVar(&dummy, "dummy", false, "insert dummy data")
 	flag.StringVar(&subdomain, "subdomain", "", "add subdomain")
@@ -74,28 +74,37 @@ func main() {
 
 	stat, _ := os.Stdin.Stat()
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
-		if add {
+		if len(add) > 0 {
 			scanner := bufio.NewScanner(os.Stdin)
-			for scanner.Scan() {
-				if len(domain) > 0 {
-					database.InsertSubdomainToDomain(domain, scanner.Text())
-				} else {
-					fmt.Println("Domain not set")
+			switch add {
+			case "sub":
+				for scanner.Scan() {
+					if len(domain) > 0 {
+						database.InsertSubdomainToDomain(domain, scanner.Text())
+					} else {
+						fmt.Println("Domain not set")
+					}
 				}
-			}
 
-			if err := scanner.Err(); err != nil {
-				log.Fatal(err)
+				if err := scanner.Err(); err != nil {
+					log.Fatal(err)
+				}
+			case "ip":
+				for scanner.Scan() {
+					if len(project) > 0 {
+						database.InsertIpToProject(project, scanner.Text())
+					} else {
+						fmt.Println("Project not set")
+					}
+				}
+
+				if err := scanner.Err(); err != nil {
+					log.Fatal(err)
+				}
 			}
 
 		} else {
 			fmt.Println("flag -add not set")
 		}
-	}
-
-	if dummy == true {
-		//database.InsertDummyProjects()
-		//database.InsertIpToProject(project, ip)
-		database.InsertSubdomainToDomain(domain, subdomain)
 	}
 }
